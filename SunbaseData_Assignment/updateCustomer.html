@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Update Customer</h1>
+    <form id="updateCustomerForm">
+      <label for="firstName">First Name:</label>
+      <input type="text" id="firstName" required />
+      <label for="lastName">Last Name:</label>
+      <input type="text" id="lastName" required />
+      <label for="street">Street:</label>
+      <input type="text" id="street" required />
+      <label for="address">Address:</label>
+      <input type="text" id="address" required />
+      <label for="city">City:</label>
+      <input type="text" id="city" required />
+      <label for="state">State:</label>
+      <input type="text" id="state" required />
+      <label for="email">Email:</label>
+      <input type="text" id="email" required />
+      <label for="phone">Phone:</label>
+      <input type="text" id="phone" required />
+
+      <button type="button" onclick="updateCustomer()">Update Customer</button>
+    </form>
+
+    <button onclick="goToViewCustomersPage()">Back to View Customers</button>
+
+    <script>
+      function updateCustomer() {
+        const token = localStorage.getItem("token");
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const street = document.getElementById("street").value;
+        const address = document.getElementById("address").value;
+        const city = document.getElementById("city").value;
+        const state = document.getElementById("state").value;
+        const email = document.getElementById("email").value;
+        const phone = document.getElementById("phone").value;
+
+        fetch(
+          "https://cors-anywhere.herokuapp.com/https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=update",
+          {
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + token,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              first_name: firstName,
+              last_name: lastName,
+              street: street,
+              address: address,
+              city: city,
+              state: state,
+              email: email,
+              phone: phone,
+            }),
+          }
+        )
+          .then((response) => {
+            if (response.status === 200) {
+              alert("Customer updated successfully");
+            } else {
+              alert("Customer update failed");
+            }
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      }
+
+      function goToViewCustomersPage() {
+        window.location.href = "viewCustomer.html";
+      }
+    </script>
+  </body>
+</html>

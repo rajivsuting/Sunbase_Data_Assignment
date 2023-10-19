@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <body>
+      <h1>View Customers</h1>
+      <button onclick="goToCreateCustomerPage()">Create Customer</button>
+      <table id="customerTable">
+        <thead>
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <script>
+        function fetchCustomers() {
+          const token = localStorage.getItem("token"); // Retrieve the Bearer token
+
+          fetch(
+            "https://cors-anywhere.herokuapp.com/https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=get_customer_list",
+            {
+              method: "GET",
+              headers: {
+                Authorization: "Bearer " + token,
+              },
+            }
+          )
+            .then((response) => {
+              if (response.status === 200) {
+                return response.json();
+              } else {
+                throw new Error("Failed to fetch customer data");
+              }
+            })
+            .then((data) => {
+              const customerTable = document.getElementById("customerTable");
+              const tbody = customerTable.querySelector("tbody");
+
+              data.forEach((customer) => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = customer.first_name;
+                row.insertCell(1).textContent = customer.last_name;
+                row.insertCell(2).textContent = customer.email;
+                const actionsCell = row.insertCell(3);
+
+                // Add "Delete" button
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", () =>
+                  deleteCustomer(customer.uuid)
+                );
+                actionsCell.appendChild(deleteButton);
+
+                // Add "Edit" button
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () =>
+                  editCustomer(customer.uuid)
+                );
+                actionsCell.appendChild(editButton);
+              });
+            })
+            .catch((error) => {
+              alert(error);
+            });
+        }
+
+        // Function to delete a customer
+        function deleteCustomer(uuid) {
+          const token = localStorage.getItem("token");
+
+          // Make a POST request to delete the customer
+          fetch(
+            "https://cors-anywhere.herokuapp.com/https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=delete&uuid=" +
+              uuid,
+            {
+              method: "POST",
+              headers: {
+                Authorization: "Bearer " + token,
+              },
+            }
+          )
+            .then((response) => {
+              if (response.status === 200) {
+                const rowToDelete = document.querySelector(
+                  "tr[data-uuid='" + uuid + "']"
+                );
+                rowToDelete.remove();
+              } else {
+                alert("Customer deletion failed");
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
+
+        function editCustomer(uuid) {
+          window.location.href = "updateCustomer.html?uuid=" + uuid;
+        }
+
+        function goToCreateCustomerPage() {
+          window.location.href = "createCustomer.html";
+        }
+
+        window.onload = fetchCustomers;
+      </script>
+    </body>
+  </body>
+</html>
